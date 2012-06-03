@@ -1,10 +1,12 @@
 #define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <node_buffer.h>
 #include <mcnet.h>
 
 #include "parser.h"
 
 using namespace v8;
+using namespace node;
 
 mcnet::Parser::Parser() {
   settings.on_packet = mcnet::Parser::on_packet;
@@ -34,8 +36,6 @@ Handle< Value > mcnet::Parser::New(const Arguments& args) {
   Parser* obj = new Parser();
   obj->Wrap(args.This());
 
-  obj->parser.data = (void*)obj;
-
   return args.This();
 }
 
@@ -44,15 +44,38 @@ Handle< Value > mcnet::Parser::Execute(const Arguments& args) {
 
   mcnet::Parser* parser = ObjectWrap::Unwrap< mcnet::Parser >(args.This());
 
-  size_t nparsed = mcnet_parser_execute(&(parser->parser), &(parser->settings), NULL, 0);
+  Local< Object > buffer = Local< Object >::Cast(args[0]);
+
+  Handle< Object > obj = args.This();
+  parser->parser.data = (void*)&obj;
+  size_t nparsed = mcnet_parser_execute(&(parser->parser), &(parser->settings), reinterpret_cast< uint8_t* >(Buffer::Data(buffer)), Buffer::Length(buffer));
+  parser->parser.data = NULL;
 
   return scope.Close(Number::New(nparsed));
 }
 
 void mcnet::Parser::on_packet(mcnet_parser_t* parser, mcnet_packet_t* packet) {
-//  mcnet::Parser* self = (mcnet::Parser*)(parser->data);
+  Handle< Object >* obj = (Handle< Object >*)(parser->data);
+
+  Handle< Value > argv[2] = {
+    String::New("packet"),
+    Number::New(packet->pid)
+  };
+
+  MakeCallback(*obj, "emit", 2, argv);
 }
 
 void mcnet::Parser::on_error(mcnet_parser_t* parser, int err) {
-//  mcnet::Parser_t* self = (mcnet::Parser_t*)(parser->data);
+  if (err == MCNET_EAGAIN) {
+    return;
+  }
+
+  Handle< Object >* obj = (Handle< Object >*)(parser->data);
+
+  Handle< Value > argv[2] = {
+    String::New("error"),
+    Number::New(err)
+  };
+
+  MakeCallback(*obj, "emit", 2, argv);
 }
