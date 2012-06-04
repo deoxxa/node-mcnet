@@ -90,7 +90,7 @@ void mcnet::Parser::on_packet(mcnet_parser_t* parser, mcnet_packet_t* packet) {
   Handle< Value > name##_args[3] = { name##_buffer->handle_, Integer::New(pkt->length), Integer::New(0) }; \
   object->Set(String::New(#name), buffer_constructor->NewInstance(3, name##_args));
 #define METADATA(name) \
-  Local< Object > name##_metadata; \
+  Local< Object > name##_metadata = Object::New(); \
   mcnet_metadata_parser_t name##_parser; \
   name##_parser.on_entry = mcnet::Parser::on_metadata_entry; \
   name##_parser.data = (void*)(&name##_metadata); \
