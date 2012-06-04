@@ -22,6 +22,7 @@ namespace mcnet {
     static Handle<Value> Execute(const Arguments& args);
     static void on_packet(mcnet_parser_t* parser, mcnet_packet_t* packet);
     static void on_error(mcnet_parser_t* parser, int err);
+    static void on_metadata_entry(mcnet_metadata_parser_t* parser, mcnet_metadata_entry_t* entry);
   } Parser_t;
 }
 
