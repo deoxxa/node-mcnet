@@ -64,9 +64,61 @@ void mcnet::Parser::on_packet(mcnet_parser_t* parser, mcnet_packet_t* packet) {
   Local< Object > global = Context::GetCurrent()->Global();
   Local< Function > buffer_constructor = Local< Function >::Cast(global->Get(String::New("Buffer")));
 
+#define PACKET(id, code) case 0x##id: { \
+  mcnet_packet_##id##_t* pkt = reinterpret_cast< mcnet_packet_##id##_t* >(packet); \
+  BYTE(pid) \
+  code \
+  break; \
+}
+
+#define CODE(data)
+#define BOOL(name) object->Set(String::New(#name), Boolean::New(pkt->name ? true : false));
+#define NUMBER(name) object->Set(String::New(#name), Number::New(pkt->name));
+#define BYTE(name) NUMBER(name)
+#define UBYTE(name) NUMBER(name)
+#define SHORT(name) NUMBER(name)
+#define USHORT(name) NUMBER(name)
+#define INT(name) NUMBER(name)
+#define LONG(name) NUMBER(name)
+#define FLOAT(name) NUMBER(name)
+#define DOUBLE(name) NUMBER(name)
+#define STRING8(name) BLOB(name, name##_len)
+#define STRING16(name) BLOB(name, name##_len * 2)
+#define BLOB(name, length) \
+  Buffer* name##_buffer = Buffer::New(pkt->length); \
+  memcpy(Buffer::Data(name##_buffer), pkt->name, pkt->length); \
+  Handle< Value > name##_args[3] = { name##_buffer->handle_, Integer::New(pkt->length), Integer::New(0) }; \
+  object->Set(String::New(#name), buffer_constructor->NewInstance(3, name##_args));
+#define METADATA(name) \
+  object->Set(String::New(#name), String::New("metadata placeholder"));
+#define SLOT(name) \
+  object->Set(String::New(#name), String::New("slot placeholder"));
+#define SLOTS(name, count) \
+  object->Set(String::New(#name), String::New("slot array placeholder"));
+
   switch (packet->pid) {
-#include "cases.cc"
+PACKETS
   }
+
+#undef CODE
+#undef BOOL
+#undef NUMBER
+#undef BYTE
+#undef UBYTE
+#undef SHORT
+#undef USHORT
+#undef INT
+#undef LONG
+#undef FLOAT
+#undef DOUBLE
+#undef STRING8
+#undef STRING16
+#undef BLOB
+#undef METADATA
+#undef SLOT
+#undef SLOTS
+
+#undef PACKET
 
   Handle< Value > argv[2] = {
     String::New("packet"),
