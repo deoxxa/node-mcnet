@@ -1,3 +1,5 @@
+#include <cstring>
+
 #define BUILDING_NODE_EXTENSION
 #include <node.h>
 #include <node_buffer.h>
@@ -57,9 +59,18 @@ Handle< Value > mcnet::Parser::Execute(const Arguments& args) {
 void mcnet::Parser::on_packet(mcnet_parser_t* parser, mcnet_packet_t* packet) {
   Handle< Object >* obj = (Handle< Object >*)(parser->data);
 
+  Local< Object > object = Object::New();
+
+  Local< Object > global = Context::GetCurrent()->Global();
+  Local< Function > buffer_constructor = Local< Function >::Cast(global->Get(String::New("Buffer")));
+
+  switch (packet->pid) {
+#include "cases.cc"
+  }
+
   Handle< Value > argv[2] = {
     String::New("packet"),
-    Number::New(packet->pid)
+    object
   };
 
   MakeCallback(*obj, "emit", 2, argv);
