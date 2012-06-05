@@ -10,7 +10,7 @@ for (var k in events.EventEmitter.prototype) {
 var parser = new mcnet.Parser();
 
 parser.on("packet", function(packet) {
-  console.log(["packet", packet]);
+  console.log(packet);
 });
 
 parser.on("error", function(err) {
@@ -47,17 +47,17 @@ var buf = new Buffer([
     0x00, 0x0A, 0x0B, 0x00, 0x0C,
 ]);
 
-var res;
-while (res = parser.execute(buf)) {
-  if (res == parser.EAGAIN) {
+var nparsed;
+while (nparsed = parser.execute(buf)) {
+  if (nparsed == parser.EAGAIN) {
     break;
-  } else if (res == parser.EINVALID) {
+  } else if (nparsed == parser.EINVALID) {
     break;
   } else {
-    if (buf.length <= res) {
+    if (buf.length <= nparsed) {
       buf = new Buffer(0);
     } else {
-      buf = buf.slice(res);
+      buf = buf.slice(nparsed);
     }
   }
 }
