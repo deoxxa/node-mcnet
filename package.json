@@ -14,7 +14,7 @@
     "mcnet",
     "minecraft",
     "network",
-    "protocol"
+    "protocol",
     "parser",
     "native",
     "c"
