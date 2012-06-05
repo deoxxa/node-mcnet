@@ -19,5 +19,8 @@
     "native",
     "c"
   ],
-  "main": "./mcnet"
+  "main": "./mcnet",
+  "scripts": {
+    "install": "cd deps/libmcnet; make; cd ../..; node-gyp configure build"
+  }
 }
