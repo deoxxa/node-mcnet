@@ -23,6 +23,7 @@ namespace mcnet {
     static void on_packet(mcnet_parser_t* parser, mcnet_packet_t* packet);
     static void on_error(mcnet_parser_t* parser, int err);
     static void on_metadata_entry(mcnet_metadata_parser_t* parser, mcnet_metadata_entry_t* entry);
+    static void on_slot(mcnet_slot_parser_t* parser, mcnet_slot_t* slot);
   } Parser_t;
 }
 

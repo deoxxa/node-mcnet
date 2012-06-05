@@ -99,9 +99,28 @@ void mcnet::Parser::on_packet(mcnet_parser_t* parser, mcnet_packet_t* packet) {
   mcnet_metadata_parser_parse(&name##_parser, pkt->name, pkt->name##_len); \
   object->Set(String::New(#name), name##_metadata);
 #define SLOT(name) \
-  object->Set(String::New(#name), String::New("slot placeholder"));
+  Local< Object > name##_slot = Object::New(); \
+  mcnet_slot_parser_t name##_parser; \
+  name##_parser.on_error = NULL; \
+  name##_parser.on_complete = mcnet::Parser::on_slot; \
+  name##_parser.data = &name##_slot; \
+  mcnet_slot_parser_parse(&name##_parser, pkt->name, pkt->name##_len); \
+  name##_parser.data = NULL; \
+  object->Set(String::New(#name), name##_slot);
 #define SLOTS(name, count) \
-  object->Set(String::New(#name), String::New("slot array placeholder"));
+  Local< Array > name##_slots = Array::New(pkt->count); \
+  mcnet_slot_parser_t name##_parser; \
+  name##_parser.on_error = NULL; \
+  name##_parser.on_complete = mcnet::Parser::on_slot; \
+  int name##_nparsed = 0, name##_i = 0; \
+  while (name##_nparsed < pkt->name##_len) { \
+    Local< Object > name##_slot = Object::New(); \
+    name##_parser.data = &name##_slot; \
+    name##_nparsed += mcnet_slot_parser_parse(&name##_parser, pkt->name + name##_nparsed, pkt->name##_len - name##_nparsed); \
+    name##_parser.data = NULL; \
+    name##_slots->Set(name##_i++, name##_slot); \
+  } \
+  object->Set(String::New(#name), name##_slots);
 
   switch (packet->pid) {
 PACKETS
@@ -203,4 +222,19 @@ void mcnet::Parser::on_metadata_entry(mcnet_metadata_parser_t* parser, mcnet_met
       break;
     }
   }
+}
+
+void mcnet::Parser::on_slot(mcnet_slot_parser_t* parser, mcnet_slot_t* slot) {
+  Local< Object >* obj = reinterpret_cast< Local< Object >* >(parser->data);
+
+  (*obj)->Set(String::New("item"), Number::New(slot->item));
+  (*obj)->Set(String::New("count"), Number::New(slot->count));
+  (*obj)->Set(String::New("meta"), Number::New(slot->meta));
+
+  Buffer* buffer = Buffer::New(slot->data_len);
+  memcpy(Buffer::Data(buffer), slot->data, slot->data_len);
+  Handle< Value > args[3] = { buffer->handle_, Integer::New(slot->data_len), Integer::New(0) };
+  Local< Object > global = Context::GetCurrent()->Global();
+  Local< Function > buffer_constructor = Local< Function >::Cast(global->Get(String::New("Buffer")));
+  (*obj)->Set(String::New("data"), buffer_constructor->NewInstance(3, args));
 }
