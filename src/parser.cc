@@ -155,38 +155,51 @@ void mcnet::Parser::on_metadata_entry(mcnet_metadata_parser_t* parser, mcnet_met
 
   switch (entry->type) {
     case MCNET_METADATA_TYPE_BYTE: {
-//      mcnet_metadata_entry_byte_t* ent = reinterpret_cast< mcnet_metadata_entry_byte_t* >(entry);
-//      (*obj)->Set(ent->index, Number::New(ent->data));
+      mcnet_metadata_entry_byte_t* ent = reinterpret_cast< mcnet_metadata_entry_byte_t* >(entry);
+      (*obj)->Set(ent->index, Number::New(ent->data));
       break;
     }
     case MCNET_METADATA_TYPE_SHORT: {
-//      mcnet_metadata_entry_short_t* ent = reinterpret_cast< mcnet_metadata_entry_short_t* >(entry);
-//      (*obj)->Set(ent->index, Number::New(ent->data));
+      mcnet_metadata_entry_short_t* ent = reinterpret_cast< mcnet_metadata_entry_short_t* >(entry);
+      (*obj)->Set(ent->index, Number::New(ent->data));
       break;
     }
     case MCNET_METADATA_TYPE_INT: {
-//      mcnet_metadata_entry_int_t* ent = reinterpret_cast< mcnet_metadata_entry_int_t* >(entry);
-//      (*obj)->Set(ent->index, Number::New(ent->data));
+      mcnet_metadata_entry_int_t* ent = reinterpret_cast< mcnet_metadata_entry_int_t* >(entry);
+      (*obj)->Set(ent->index, Number::New(ent->data));
       break;
     }
     case MCNET_METADATA_TYPE_FLOAT: {
-//      mcnet_metadata_entry_float_t* ent = reinterpret_cast< mcnet_metadata_entry_float_t* >(entry);
-//      (*obj)->Set(ent->index, Number::New(ent->data));
+      mcnet_metadata_entry_float_t* ent = reinterpret_cast< mcnet_metadata_entry_float_t* >(entry);
+      (*obj)->Set(ent->index, Number::New(ent->data));
       break;
     }
     case MCNET_METADATA_TYPE_STRING16: {
-//      mcnet_metadata_entry_string16_t* ent = reinterpret_cast< mcnet_metadata_entry_string16_t* >(entry);
-//      (*obj)->Set(ent->index, ent->data);
+      mcnet_metadata_entry_string16_t* ent = reinterpret_cast< mcnet_metadata_entry_string16_t* >(entry);
+      Buffer* buffer = Buffer::New(ent->data_length);
+      memcpy(Buffer::Data(buffer), ent->data, ent->data_length);
+      Handle< Value > args[3] = { buffer->handle_, Integer::New(ent->data_length), Integer::New(0) };
+      Local< Object > global = Context::GetCurrent()->Global();
+      Local< Function > buffer_constructor = Local< Function >::Cast(global->Get(String::New("Buffer")));
+      (*obj)->Set(ent->index, buffer_constructor->NewInstance(3, args));
       break;
     }
     case MCNET_METADATA_TYPE_SLOT: {
-//      mcnet_metadata_entry_sbs_t* ent = reinterpret_cast< mcnet_metadata_entry_sbs_t* >(entry);
-//      (*obj)->Set(ent->index, ent->data);
+      mcnet_metadata_entry_sbs_t* ent = reinterpret_cast< mcnet_metadata_entry_sbs_t* >(entry);
+      Local< Object > object = Object::New();
+      object->Set(String::New("id"), Number::New(ent->id));
+      object->Set(String::New("count"), Number::New(ent->count));
+      object->Set(String::New("damage"), Number::New(ent->damage));
+      (*obj)->Set(ent->index, object);
       break;
     }
     case MCNET_METADATA_TYPE_INTS: {
-//      mcnet_metadata_entry_sbs_t* ent = reinterpret_cast< mcnet_metadata_entry_sbs_t* >(entry);
-//      (*obj)->Set(ent->index, ent->data);
+      mcnet_metadata_entry_iii_t* ent = reinterpret_cast< mcnet_metadata_entry_iii_t* >(entry);
+      Local< Array > array = Array::New(3);
+      array->Set(0, Number::New(ent->data[0]));
+      array->Set(1, Number::New(ent->data[1]));
+      array->Set(2, Number::New(ent->data[2]));
+      (*obj)->Set(ent->index, array);
       break;
     }
   }
