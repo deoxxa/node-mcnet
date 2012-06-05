@@ -1,11 +1,6 @@
 #!/usr/bin/env node
 
-var events = require("events"),
-    mcnet = require("./build/Release/mcnet");
-
-for (var k in events.EventEmitter.prototype) {
-  mcnet.Parser.prototype[k] = events.EventEmitter.prototype[k];
-}
+var mcnet = require("./mcnet");
 
 var parser = new mcnet.Parser();
 
