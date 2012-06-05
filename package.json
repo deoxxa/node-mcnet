@@ -1,0 +1,23 @@
+{
+  "name": "mcnet",
+  "description": "Bindings to the libmcnet Minecraft network protocol parser library",
+  "version": "0.0.1",
+  "author": {
+    "name": "Conrad Pankoff",
+    "email": "deoxxa@fknsrs.biz",
+    "url": "http://www.fknsrs.biz/"
+  },
+  "url": "http://github.com/deoxxa/node-mcnet",
+  "license": "BSD",
+  "repository": { "type":"git", "url":"git://github.com/deoxxa/node-mcnet.git" },
+  "keywords": [
+    "mcnet",
+    "minecraft",
+    "network",
+    "protocol"
+    "parser",
+    "native",
+    "c"
+  ],
+  "main": "./mcnet"
+}

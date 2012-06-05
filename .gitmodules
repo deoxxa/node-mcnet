@@ -1,0 +1,3 @@
+[submodule "deps/libmcnet"]
+	path = deps/libmcnet
+	url = git://github.com/deoxxa/libmcnet.git
