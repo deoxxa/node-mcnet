@@ -92,8 +92,10 @@ void mcnet::Parser::on_packet(mcnet_parser_t* parser, mcnet_packet_t* packet) {
 #define METADATA(name) \
   Local< Object > name##_metadata = Object::New(); \
   mcnet_metadata_parser_t name##_parser; \
+  name##_parser.on_error = NULL; \
+  name##_parser.on_complete = NULL; \
   name##_parser.on_entry = mcnet::Parser::on_metadata_entry; \
-  name##_parser.data = (void*)(&name##_metadata); \
+  name##_parser.data = &name##_metadata; \
   mcnet_metadata_parser_parse(&name##_parser, pkt->name, pkt->name##_len); \
   object->Set(String::New(#name), name##_metadata);
 #define SLOT(name) \
