@@ -195,9 +195,9 @@ void mcnet::Parser::on_metadata_entry(mcnet_metadata_parser_t* parser, mcnet_met
     }
     case MCNET_METADATA_TYPE_STRING16: {
       mcnet_metadata_entry_string16_t* ent = reinterpret_cast< mcnet_metadata_entry_string16_t* >(entry);
-      Buffer* buffer = Buffer::New(ent->data_length);
-      memcpy(Buffer::Data(buffer), ent->data, ent->data_length);
-      Handle< Value > args[3] = { buffer->handle_, Integer::New(ent->data_length), Integer::New(0) };
+      Buffer* buffer = Buffer::New(ent->data_length * 2);
+      memcpy(Buffer::Data(buffer), ent->data, ent->data_length * 2);
+      Handle< Value > args[3] = { buffer->handle_, Integer::New(ent->data_length * 2), Integer::New(0) };
       Local< Object > global = Context::GetCurrent()->Global();
       Local< Function > buffer_constructor = Local< Function >::Cast(global->Get(String::New("Buffer")));
       (*obj)->Set(ent->index, buffer_constructor->NewInstance(3, args));
