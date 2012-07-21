@@ -21,6 +21,6 @@
   ],
   "main": "./mcnet",
   "scripts": {
-    "install": "cd deps/libmcnet; make; cd ../..; node-gyp configure build"
+    "install": "cd deps/libmcnet; node-gyp clean configure build; cd ../..; node-gyp clean configure build"
   }
 }
