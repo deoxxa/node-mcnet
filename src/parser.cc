@@ -1,4 +1,5 @@
 #include <cstring>
+#include <iostream>
 
 #define BUILDING_NODE_EXTENSION
 #include <node.h>
@@ -10,7 +11,8 @@
 using namespace v8;
 using namespace node;
 
-mcnet::Parser::Parser() {
+mcnet::Parser::Parser(char parser_type) {
+  parser.type = parser_type;
   settings.on_packet = mcnet::Parser::on_packet;
   settings.on_error = mcnet::Parser::on_error;
 }
@@ -27,6 +29,8 @@ void mcnet::Parser::Init(Handle< Object > target) {
   tpl->PrototypeTemplate()->Set(String::NewSymbol("execute"), FunctionTemplate::New(Execute)->GetFunction());
   tpl->PrototypeTemplate()->Set(String::NewSymbol("EAGAIN"), Number::New(MCNET_EAGAIN));
   tpl->PrototypeTemplate()->Set(String::NewSymbol("EINVALID"), Number::New(MCNET_EINVALID));
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("TYPE_CLIENT"), Number::New(MCNET_PARSER_TYPE_CLIENT));
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("TYPE_SERVER"), Number::New(MCNET_PARSER_TYPE_SERVER));
 
   Persistent< Function > constructor = Persistent< Function >::New(tpl->GetFunction());
   target->Set(String::NewSymbol("Parser"), constructor);
@@ -35,7 +39,14 @@ void mcnet::Parser::Init(Handle< Object > target) {
 Handle< Value > mcnet::Parser::New(const Arguments& args) {
   HandleScope scope;
 
-  Parser* obj = new Parser();
+  int parser_type;
+  if (args.Length() > 0 && args[0]->IsNumber()) {
+    parser_type = args[0]->NumberValue();
+  } else {
+    parser_type = MCNET_PARSER_TYPE_SERVER;
+  }
+
+  Parser* obj = new Parser(parser_type);
   obj->Wrap(args.This());
 
   return args.This();

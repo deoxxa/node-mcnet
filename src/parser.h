@@ -12,7 +12,7 @@ namespace mcnet {
     static void Init(Handle<Object> target);
 
   private:
-    Parser();
+    Parser(char parser_type);
     ~Parser();
 
     mcnet_parser_t parser;
